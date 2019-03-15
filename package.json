@@ -4,13 +4,23 @@
   "version": "0.1.1",
   "author": "Andrew Weeks <andrew@meloncholy.com>",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": ">= 2.5.x",
-    "jade": ">= 0.25.0",
+    "jade": "^1.11.0",
     "konphyg": ">= 1.0.5",
+    "method-override": "^3.0.0",
     "oembed": ">= 0.1.0",
-    "rss": ">= 0.0.3"
+    "pug": ">= 0.25.0",
+    "rss": ">= 0.0.3",
+    "validator": "^10.11.0",
+    "xss-filters": "^1.2.7"
   },
-  "keywords": ["mixcloud", "rss", "oembed", "feed"],
+  "keywords": [
+    "mixcloud",
+    "rss",
+    "oembed",
+    "feed"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/meloncholy/mixcloud-rss.git"

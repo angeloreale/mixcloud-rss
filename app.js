@@ -8,6 +8,9 @@
 * @version    0.1.1
 */
 
+var bodyParser = require('body-parser');
+var methodOverride = require('method-override')
+
 "use strict";
 
 var config = require("konphyg")(__dirname + "/config/");
@@ -16,33 +19,32 @@ global.appPath = __dirname;
 global.mcSettings = { app: config("app") };
 if (global.mcSettings.app.url.substr(-1) != "/") global.mcSettings.app.url += "/";
 
-var express = require("express");
+var express = require('express');
+var app = express();
 
 var routes = {};
 routes.site = require("./routes/site");
 routes.feed = require("./routes/feed");
 
-var app = module.exports = express.createServer();
 
-app.configure(function () {
-	app.set("env", global.mcSettings.mode);
-	app.set("views", __dirname + "/views");
-	app.set("view engine", "jade");
-	app.use(express.bodyParser());
-	app.use(express.methodOverride());
-	// Put static before router to check for real files first, a la .htaccess
-	app.use(express.static(__dirname + "/public"));
-	app.use(app.router);
-});
+app.set("env", global.mcSettings.mode);
+app.set("views", __dirname + "/views");
+app.set("view engine", "jade");
+app.use(bodyParser.json());
+app.use(methodOverride());
+// Put static before router to check for real files first, a la .htaccess
+app.use(express.static(__dirname + "/public"));
 
-app.configure("development", function() {
+
+if (process.env.NODE_ENV === "development") {
 	app.use(express.logger());
 	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
+}
 
-app.configure("production", function() {
+
+if (process.env.NODE_ENV === "development") {
 	app.use(express.errorHandler());
-});
+}
 
 
 // Routes
@@ -52,4 +54,4 @@ app.get("/:user", routes.feed.index);
 app.get("/", routes.site.index);
 
 app.listen(config("app").localPort);
-console.log("We're up on port %d in %s mode.", app.address().port, app.settings.env);
+console.log("We're up on port %d in %s mode.", config("app").localPort, app.get('env'));

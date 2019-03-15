@@ -13,6 +13,7 @@
 var RSS = require("rss");
 var oembed = require("oembed");
 var sanitize = require("validator").sanitize;
+var xssFilters = require('xss-filters');
 
 var feed = function () {
 	var exports = {};
@@ -22,7 +23,7 @@ var feed = function () {
 	// Build RSS feed. Start by requesting user stream.
 
 	exports.index = function (req, res) {
-		var user = sanitize(req.params.user).xss();
+		var user = xssFilters.inHTMLData(req.params.user);
 		var stuff = { req: req, res: res, user: user };
 		var streamUrl = settings.cloudcastStreamUrl.replace("%user", user);
 
@@ -47,7 +48,7 @@ var feed = function () {
 		var cloudcasts = result.data;
 		var cloudcastUrl = settings.cloudcastOembedUrl;
 		// Skip "\'s Cloudcasts"
-		var author = sanitize(result.name).xss().slice(0, -13);
+		var author = xssFilters.inHTMLData(result.name).slice(0, -13);
 
 		stuff.length = cloudcasts.length;
 		stuff.count = 0;
@@ -89,7 +90,7 @@ var feed = function () {
 		if (stuff.length > 0) {
 			// Add post to feed.
 			stuff.feed.item({
-				title: sanitize(result.title).xss(),
+				title: xssFilters.inHTMLData(result.title),
 				description: result.html,
 				url: info.url,
 				author: result.author_name,
@@ -109,7 +110,7 @@ var feed = function () {
 	// A subset of exports.index that sticks the latest Cloudcast in some JSON.
 
 	exports.test = function (req, res, next) {
-		var user = sanitize(req.params.user).xss();
+		var user = xssFilters.inHTMLData(req.params.user);
 		var stuff = { req: req, res: res, user: user };
 		var streamUrl = settings.cloudcastStreamUrl.replace("%user", user);
 
@@ -132,7 +133,7 @@ var feed = function () {
 		var cloudcasts = result.data;
 		var cloudcastUrl = settings.cloudcastOembedUrl;
 		// Skip "\'s Cloudcasts"
-		var author = sanitize(result.name).xss().slice(0, -13);
+		var author = xssFilters.inHTMLData(result.name).slice(0, -13);
 
 		if (cloudcasts.length === 0) {
 			stuff.res.json({ author: author, title: "Nothing to see here", html: "<p>Hmmm&hellip; Looks like " + author + " hasn&rsquo;t put up any Cloudcasts yet. You can still subscribe and get them when they appear.</p>" });
@@ -149,7 +150,7 @@ var feed = function () {
 			return;
 		}
 
-		stuff.res.json({ author: info.author, title: sanitize(result.title).xss(), html: result.html });
+		stuff.res.json({ author: info.author, title: xssFilters.inHTMLData(result.title), html: result.html });
 	}
 
 	return exports;
